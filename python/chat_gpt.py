@@ -13,6 +13,8 @@ sa_chatGPT_host = "https://chatgptproxy.xyz"
 
 
 class ChatGPT(object):
+    # union_id 页面里面也是随机生成，16位，之后存储到了本地，所以创建的时候，固定就可以了
+    # start_heart，如果是多伦对话，就需要心跳，传True；如果不是多伦的，直接传False即可
     def __init__(self, union_id, start_heart):
         self.user_fake_id = union_id
         self.session_id = random_str(16)

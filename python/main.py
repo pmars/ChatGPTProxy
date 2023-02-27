@@ -11,7 +11,7 @@ from chat_gpt import *
 
 # 测试询问问题，无需多伦回复，每个问题，只要有答案即可
 def ask_questions():
-    chat = ChatGPT("my_test_union_id", False)  # 这里new的时候，提供一个union_id作为独立的账号识别码，请切换一个有特殊标识的字符串
+    chat = ChatGPT("my_test_union_id", False)  # my_test_union_id 根据js分析，这个固定就可以了（js里面存储在了本地）
     question_list = ["全世界一共多少个国家", "一个苹果有300克，一个梨400克，那么5个apple，2个pear，一共多少克", "中国最大的城市是哪里"]
     for q in question_list:
         if chat.send_question(q):
@@ -31,7 +31,7 @@ def ask_questions():
 
 # 询问连续性的问题，前后逻辑有关联
 def ask_multi_questions():
-    chat = ChatGPT("my_test_union_id", True)  # my_test_union_id 这个需要你们改一下，AI******* 即可
+    chat = ChatGPT("my_test_union_id", True)  # my_test_union_id 根据js分析，这个固定就可以了（js里面存储在了本地）
     question_list = ["美国的领土面积排名在第几位", "巴西呢？", "那么第12的是谁"]
     for q in question_list:
         print("question:", q)

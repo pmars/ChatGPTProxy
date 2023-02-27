@@ -13,7 +13,7 @@
 {
   "data": {
     "parent_id": "", // 这个是对话的衔接的key，上下文对应的，这一句话返回的chat_id 为下一句话的parent_id
-    "question": "",  // 问题内容
+    "question": "python websocket-client包总是断链，怎么办，有没有什么好的解决方案",  // 问题内容
     "session_id": "", // 这个在整个对话过程中，都没有变，通过setRandomNumberWay()生成的随机字符串，每次刷新页面都会生成
     "user_fake_id": "" // 用户ID，也是通过setRandomNumberWay()生成的字符串，localStorage存储在了本地，应该是用户固定的ID
   }
@@ -48,13 +48,108 @@ setRandomNumberWay: function() {
 这个接口获取对话的结果，需要循环调用，最后通过status判断结果
 
 ```javascript
-具体的 js 判断函数 getChatResultWay
+具体的 js 判断函数 getChatResultWay(如下面代码所示)
 可见 
 1. 生成中，遇到了，继续sleep，之后调用即可
 2. console.log("答案给了一半，之后就不再返回了") 测试中没有遇到过，但js代码可以发现，这里直接截止了，再次发起conversation得
 3. 正常返回成功，显示结果，不再继续调用result接口
 5. ChatGPT限速中，正在重试～, 后面继续调用result接口
 else. 过滤了
+```
+
+```javascript
+getChatResultWay: function(t) {
+    var e = this
+      , n = {
+        chat_id: t,
+        user_fake_id: e.user_fake_id,
+        session_id: e.session_id
+    }
+      , a = function t() {
+        e.$jsonPost(e.$axiosUrl.chatResult, {
+            data: n
+        }).then((function(n) {
+            switch (e.gptRateLimiting = "",
+            n.resp_data.status) {
+            case 1:
+                var a = n.resp_data.answer;
+                e.$set(e.allQuestionList[e.allQuestionList.length - 1].detail, "answer", a);
+                var i = e.allQuestionList.length - 1;
+                n.resp_data.answer && document.getElementsByClassName("v-show-content")[i] && document.getElementsByClassName("v-show-content")[i].classList.add("result-streaming"),
+                setTimeout((function() {
+                    e.scrollBottm()
+                }
+                ), 500),
+                e.pollingTimeout = setTimeout((function() {
+                    t()
+                }
+                ), 1e3);
+                break;
+            case 2:
+                if (console.log("答案给了一半，之后就不再返回了"),
+                Gt("ChatGPT超时，请重新提问"),
+                e.sureSubmitLoading = !0,
+                e.$set(e.allQuestionList[e.allQuestionList.length - 1].detail, "answer", n.resp_data.answer),
+                e.inputFocusBtn(),
+                clearTimeout(e.pollingTimeout),
+                document.getElementsByClassName("v-show-content")[0]) {
+                    var s = document.querySelectorAll(".result-streaming");
+                    s.forEach((function(t) {
+                        return t.classList.remove("result-streaming")
+                    }
+                    ))
+                }
+                setTimeout((function() {
+                    e.scrollBottm()
+                }
+                ), 500);
+                break;
+            case 3:
+                if (console.log(n.resp_data.answer),
+                e.sureSubmitLoading = !0,
+                e.$set(e.allQuestionList[e.allQuestionList.length - 1].detail, "answer", n.resp_data.answer),
+                e.inputFocusBtn(),
+                clearTimeout(e.pollingTimeout),
+                document.getElementsByClassName("v-show-content")[0]) {
+                    var o = document.querySelectorAll(".result-streaming");
+                    o.forEach((function(t) {
+                        return t.classList.remove("result-streaming")
+                    }
+                    ))
+                }
+                setTimeout((function() {
+                    e.scrollBottm()
+                }
+                ), 500);
+                break;
+            case 5:
+                e.gptRateLimiting = "ChatGPT限速中，正在重试～",
+                e.pollingTimeout = setTimeout((function() {
+                    t()
+                }
+                ), 1e3);
+                break;
+            default:
+                e.sureSubmitLoading = !0,
+                Gt("抱歉，没有明白你的意思，请换个方式问问～"),
+                clearTimeout(e.pollingTimeout),
+                e.$set(e.allQuestionList[e.allQuestionList.length - 1].detail, "answer", "抱歉，没有明白你的意思～"),
+                setTimeout((function() {
+                    e.scrollBottm()
+                }
+                ), 500);
+                break
+            }
+        }
+        )).catch((function(e) {
+            console.log(e),
+            ("ECONNABORTED" == e.code || "Network Error" == e.message || e.message.includes("timeout") || e.message.includes("code 502")) && (console.log("chatResult--catch"),
+            t())
+        }
+        ))
+    };
+    a()
+}
 ```
 
 具体参数如下：
